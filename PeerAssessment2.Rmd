@@ -1,7 +1,25 @@
----
-title: "Reproducible Research- Peer Assessment 2 Explore the NOAA Storm Database"
-author: "jagdeep s sihota"
----
+#### Reproducible Research- Peer Assessment 2
+#### Most Severe Weather Events Impacting Health and Economy
+##### author: jagdeep s sihota
+
+
+#Synopsis
+This anyalis involves exploring the U.S. National Oceanic and Atmospheric Administration's (NOAA) 
+ storm database two answer these two questions :
+
+- Across the United States, which types of events  are most harmful with respect to population health?
+- Across the United States, which types of events have the greatest economic consequences?
+
+This NOAA database tracks characteristics of major storms and weather events in the United States, including when and where they occur, 
+as well as estimates of any fatalities, injuries, and property damage.
+
 ```{r}
 setwd("~/git/RepData_PeerAssessment2")
 ```
+
+# Data Processing
+## Loading Data 
+## Processeing Data
+### Data preprocessing
+
+#Results
