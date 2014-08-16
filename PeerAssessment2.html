@@ -64,18 +64,42 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 </div>
 <div id="synopsis" class="section level1">
 <h1>Synopsis</h1>
-<p>This anyalis involves exploring the U.S. National Oceanic and Atmospheric Administration’s (NOAA) storm database two answer these two questions :</p>
+<p>This anyalis involves exploring the U.S. National Oceanic and Atmospheric Administration’s (NOAA) storm database two answer following questions:</p>
 <ul>
 <li>Across the United States, which types of events are most harmful with respect to population health?</li>
 <li>Across the United States, which types of events have the greatest economic consequences?</li>
 </ul>
 <p>This NOAA database tracks characteristics of major storms and weather events in the United States, including when and where they occur, as well as estimates of any fatalities, injuries, and property damage.</p>
-<pre class="r"><code>setwd(&quot;~/git/RepData_PeerAssessment2&quot;)</code></pre>
+<p>The raw data consisted of 902297 records, each with values for up to 37 variables, from years 1950 to November 2011. We hand-picked 7 variables that seemed relevent to our analysis of population health impact and economic impact, and focused our analysis on these. By aggregating the data by storm event type, we ultimately produced bar charts showing the top 6 most significant events in term of fatalities, injuries and economic damage caused. Overall,</p>
+<p>Data shows, tornadoes are the most hazardous to human health with 5633 reported fatalities and 91346 reported injuries, and floods have been responsible for the most economic damage ($150+ billion).</p>
 </div>
 <div id="data-processing" class="section level1">
 <h1>Data Processing</h1>
+<p>From the Coursera “Reproducible Research” course <a href="https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2">file repository</a>, we obtain the storm data in bzip archive format and extract it.</p>
+<div id="anlysis-machine-setting" class="section level4">
+<h4>Anlysis Machine setting</h4>
+<p>Following R package need to be installed</p>
+<pre class="r"><code>install.packages(&quot;R.utils&quot;)</code></pre>
+</div>
 <div id="loading-data" class="section level2">
 <h2>Loading Data</h2>
+<pre class="r"><code>library(R.utils)
+# set the working directory
+setwd(&quot;~/git/RepData_PeerAssessment2&quot;)
+# download file from URL
+if (!file.exists(&quot;storm.csv.bz2&quot;)) {
+  download.file(&quot;https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2&quot;, 
+               &quot;storm.csv.bz2&quot;,method = &quot;curl&quot;)
+  
+}
+# unzip file
+if (!file.exists(&quot;storm.csv&quot;)) {
+
+  bunzip2(&quot;storm.csv.bz2&quot;, &quot;storm.csv&quot;, remove = FALSE)
+}
+# load data into R
+storm &lt;- read.csv(&quot;storm.csv&quot;)
+head(storm)</code></pre>
 </div>
 <div id="processeing-data" class="section level2">
 <h2>Processeing Data</h2>
