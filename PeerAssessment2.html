@@ -69,44 +69,40 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 <li>Across the United States, which types of events are most harmful with respect to population health?</li>
 <li>Across the United States, which types of events have the greatest economic consequences?</li>
 </ul>
-<p>This NOAA database tracks characteristics of major storms and weather events in the United States, including when and where they occur, as well as estimates of any fatalities, injuries, and property damage.</p>
-<p>The raw data consisted of 902297 records, each with values for up to 37 variables, from years 1950 to November 2011. We hand-picked 7 variables that seemed relevent to our analysis of population health impact and economic impact, and focused our analysis on these. By aggregating the data by storm event type, we ultimately produced bar charts showing the top 6 most significant events in term of fatalities, injuries and economic damage caused. Overall,</p>
+<p>This NOAA database tracks characteristics of major storms and weather events in the United States, including when and where they occur, as well as estimates of any fatalities, injuries, and property damage.The raw data consisted of 902297 records, each with values for up to 37 variables, from years 1950 to November 2011. 7 variables that seemed relevent to our analysis of population health impact and economic impact, and focused our analysis on these.</p>
 <p>Data shows, tornadoes are the most hazardous to human health with 5633 reported fatalities and 91346 reported injuries, and floods have been responsible for the most economic damage ($150+ billion).</p>
 </div>
 <div id="data-processing" class="section level1">
 <h1>Data Processing</h1>
 <p>From the Coursera “Reproducible Research” course <a href="https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2">file repository</a>, we obtain the storm data in bzip archive format and extract it.</p>
-<div id="anlysis-machine-setting" class="section level4">
-<h4>Anlysis Machine setting</h4>
-<p>Following R package need to be installed</p>
-<pre class="r"><code>install.packages(&quot;R.utils&quot;)</code></pre>
+<div id="anlysis-machine-info-and-r-packages" class="section level4">
+<h4>Anlysis Machine info and R packages</h4>
+<pre class="r"><code>library(R.utils)</code></pre>
+<pre><code>## Warning: package 'R.utils' was built under R version 3.1.1
+## Warning: package 'R.oo' was built under R version 3.1.1
+## Warning: package 'R.methodsS3' was built under R version 3.1.1</code></pre>
+<pre class="r"><code>library(data.table)
+library(ggplot2)</code></pre>
+<pre><code>## Warning: package 'ggplot2' was built under R version 3.1.1</code></pre>
 </div>
-<div id="loading-data" class="section level2">
-<h2>Loading Data</h2>
-<pre class="r"><code>library(R.utils)
-# set the working directory
-setwd(&quot;~/git/RepData_PeerAssessment2&quot;)
-# download file from URL
-if (!file.exists(&quot;storm.csv.bz2&quot;)) {
-  download.file(&quot;https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2&quot;, 
-               &quot;storm.csv.bz2&quot;,method = &quot;curl&quot;)
-  
-}
-# unzip file
-if (!file.exists(&quot;storm.csv&quot;)) {
+<div id="getting-and-loading-the-data" class="section level3">
+<h3>Getting and Loading the Data</h3>
+<p>Raw data is aviable from the Coursera “Reproducible Research” course <a href="https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2">file repository</a>, we obtain the storm data in bzip archive format and extract it.</p>
+<pre class="r"><code>download.file(&quot;https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2&quot;, destfile=&quot;repdata-data-StormData.csv.bz2&quot;,method = &quot;curl&quot;)
 
-  bunzip2(&quot;storm.csv.bz2&quot;, &quot;storm.csv&quot;, remove = FALSE)
-}
-# load data into R
-storm &lt;- read.csv(&quot;storm.csv&quot;)
-head(storm)</code></pre>
+bunzip2(&quot;repdata-data-StormData.csv.bz2&quot;, overwrite=T, remove=F)</code></pre>
+<p>Read in the extracted file, which is in CSV format</p>
+<pre class="r"><code>storm = read.csv(&quot;repdata-data-StormData.csv&quot;)
+storm = data.table(storm)</code></pre>
 </div>
 <div id="processeing-data" class="section level2">
 <h2>Processeing Data</h2>
-<div id="data-preprocessing" class="section level3">
-<h3>Data preprocessing</h3>
+<p>Subset the data to health and economic impact analysis against weather. A more detailed description of the columns can be found <a href="https://d396qusza40orc.cloudfront.net/repdata%2Fpeer2_doc%2Fpd01016005curr.pdf">here</a> For the discussion of damages to person and property only the following columns are relevant:</p>
 </div>
 </div>
+<div id="event" class="section level1">
+<h1>event</h1>
+<p>```</p>
 </div>
 <div id="results" class="section level1">
 <h1>Results</h1>

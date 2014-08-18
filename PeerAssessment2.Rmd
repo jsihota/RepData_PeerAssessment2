@@ -10,10 +10,8 @@ storm database two answer following questions:
 - Across the United States, which types of events  are most harmful with respect to population health?
 - Across the United States, which types of events have the greatest economic consequences?
 
-  This NOAA database tracks characteristics of major storms and weather events in the United States, including when and where they occur, as well as estimates of any fatalities, injuries, and property damage.
-
-  The raw data consisted of 902297 records, each with values for up to 37 variables, from years 1950 to November 2011. We hand-picked 7 variables that seemed relevent to our analysis of population health impact and economic impact, and focused our analysis on these. By aggregating the data by storm event type, we ultimately produced bar charts showing the top 6 most significant events in term of fatalities, injuries and economic damage caused. Overall, 
-
+  This NOAA database tracks characteristics of major storms and weather events in the United States, including when and where they occur, as well as estimates of any fatalities, injuries, and property damage.The raw data consisted of 902297 records, each with values for up to 37 variables, from years 1950 to November 2011.
+  
   Data shows, tornadoes are the most hazardous to human health with 5633 reported fatalities and 91346 reported injuries, and floods have been responsible for the most economic damage ($150+ billion).
 
 
@@ -25,34 +23,54 @@ From the Coursera "Reproducible Research" course
 [file repository](https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2),
 we obtain the storm data in bzip archive format and extract it.
 
-#### Anlysis Machine setting
-Following R package need to be installed
-```{r,cache=F,eval=F}
-install.packages("R.utils")
+#### Anlysis Machine info and R packages 
+
+```{r settings,include=F,cache=F}
+library(knitr)
+options(digits = 7)
+opts_chunk$set(fig.width=10)
 ```
 
-## Loading Data 
-```{r download.data,cache=F,eval=F}
+```{r libraries,message=F,cache=F}
 library(R.utils)
-# set the working directory
-setwd("~/git/RepData_PeerAssessment2")
-# download file from URL
-if (!file.exists("storm.csv.bz2")) {
-  download.file("https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2", 
-               "storm.csv.bz2",method = "curl")
-  
-}
-# unzip file
-if (!file.exists("storm.csv")) {
+library(data.table)
+library(ggplot2)
 
-  bunzip2("storm.csv.bz2", "storm.csv", remove = FALSE)
-}
-# load data into R
-storm <- read.csv("storm.csv")
-head(storm)
 ```
 
-## Processeing Data
-### Data preprocessing
+### Getting and Loading the Data
+
+Raw data is aviable from the Coursera "Reproducible Research" course
+[file repository](https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2),
+we obtain the storm data in bzip archive format and extract it.
+
+```{r download.data,cache=T,eval=F}
+download.file("https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2", destfile="repdata-data-StormData.csv.bz2",method = "curl")
+
+bunzip2("repdata-data-StormData.csv.bz2", overwrite=T, remove=F)
+```
+Read in the extracted file, which is in CSV format
+
+```{r read.data,cache=T}
+storm = read.csv("repdata-data-StormData.csv")
+
+```
+
+### Processeing Data
+Subset the data to health and economic impact analysis against weather.
+A more detailed description of the columns can be found [here](https://d396qusza40orc.cloudfront.net/repdata%2Fpeer2_doc%2Fpd01016005curr.pdf)
+For the discussion of damages to person and property only the following columns are   relevant:   
+
+```{r}
+
+mycol <- c("EVTYPE", "FATALITIES", "INJURIES", "PROPDMG", "PROPDMGEXP", "CROPDMG", 
+    "CROPDMGEXP")
+stormRelenantData <- storm[mycol]
+
+names(stormRelenantData)
+
+```
+
+
 
 #Results
