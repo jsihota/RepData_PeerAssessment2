@@ -69,43 +69,142 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 <li>Across the United States, which types of events are most harmful with respect to population health?</li>
 <li>Across the United States, which types of events have the greatest economic consequences?</li>
 </ul>
-<p>This NOAA database tracks characteristics of major storms and weather events in the United States, including when and where they occur, as well as estimates of any fatalities, injuries, and property damage.The raw data consisted of 902297 records, each with values for up to 37 variables, from years 1950 to November 2011. 7 variables that seemed relevent to our analysis of population health impact and economic impact, and focused our analysis on these.</p>
+<p>This NOAA database tracks characteristics of major storms and weather events in the United States, including when and where they occur, as well as estimates of any fatalities, injuries, and property damage.The raw data consisted of 902297 records, each with values for up to 37 variables, from years 1950 to November 2011.</p>
 <p>Data shows, tornadoes are the most hazardous to human health with 5633 reported fatalities and 91346 reported injuries, and floods have been responsible for the most economic damage ($150+ billion).</p>
+<div id="data-processing" class="section level2">
+<h2>Data Processing</h2>
+<div id="setting-up-r" class="section level3">
+<h3>Setting up R</h3>
+<pre class="r"><code>library(knitr)
+options(digits = 7)
+opts_chunk$set(fig.width=10)</code></pre>
+<pre class="r"><code>library(R.utils, warn.conflicts = FALSE, quietly=TRUE)
+library(data.table, warn.conflicts = FALSE, quietly=TRUE)
+library(ggplot2, warn.conflicts = FALSE, quietly=TRUE)</code></pre>
 </div>
-<div id="data-processing" class="section level1">
-<h1>Data Processing</h1>
-<p>From the Coursera “Reproducible Research” course <a href="https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2">file repository</a>, we obtain the storm data in bzip archive format and extract it.</p>
-<div id="anlysis-machine-info-and-r-packages" class="section level4">
-<h4>Anlysis Machine info and R packages</h4>
-<pre class="r"><code>library(R.utils)</code></pre>
-<pre><code>## Warning: package 'R.utils' was built under R version 3.1.1
-## Warning: package 'R.oo' was built under R version 3.1.1
-## Warning: package 'R.methodsS3' was built under R version 3.1.1</code></pre>
-<pre class="r"><code>library(data.table)
-library(ggplot2)</code></pre>
-<pre><code>## Warning: package 'ggplot2' was built under R version 3.1.1</code></pre>
-</div>
-<div id="getting-and-loading-the-data" class="section level3">
-<h3>Getting and Loading the Data</h3>
-<p>Raw data is aviable from the Coursera “Reproducible Research” course <a href="https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2">file repository</a>, we obtain the storm data in bzip archive format and extract it.</p>
-<pre class="r"><code>download.file(&quot;https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2&quot;, destfile=&quot;repdata-data-StormData.csv.bz2&quot;,method = &quot;curl&quot;)
-
-bunzip2(&quot;repdata-data-StormData.csv.bz2&quot;, overwrite=T, remove=F)</code></pre>
+<div id="loading-the-data" class="section level3">
+<h3>Loading the data</h3>
+<p>Raw data is available at the Coursera “Reproducible Research” course <a href="https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2">csv.bz2 file</a>.</p>
+<pre class="r"><code># download file from URL
+if (!file.exists(&quot;repdata-data-StormData.csv.bz2&quot;)) {
+download.file(&quot;https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2&quot;, destfile=&quot;repdata-data-StormData.csv.bz2&quot;,method = &quot;curl&quot;)
+}
+# unzip file
+if (!file.exists(&quot;storm.csv&quot;)) {
+    library(R.utils)
+    bunzip2(&quot;repdata-data-StormData.csv.bz2&quot;, &quot;storm.csv&quot;, remove = FALSE)
+}</code></pre>
 <p>Read in the extracted file, which is in CSV format</p>
-<pre class="r"><code>storm = read.csv(&quot;repdata-data-StormData.csv&quot;)
-storm = data.table(storm)</code></pre>
+<pre class="r"><code># load data into R
+storm &lt;- read.csv(&quot;storm.csv&quot;)
+head(storm)</code></pre>
+<pre><code>##   STATE__           BGN_DATE BGN_TIME TIME_ZONE COUNTY COUNTYNAME STATE
+## 1       1  4/18/1950 0:00:00     0130       CST     97     MOBILE    AL
+## 2       1  4/18/1950 0:00:00     0145       CST      3    BALDWIN    AL
+## 3       1  2/20/1951 0:00:00     1600       CST     57    FAYETTE    AL
+## 4       1   6/8/1951 0:00:00     0900       CST     89    MADISON    AL
+## 5       1 11/15/1951 0:00:00     1500       CST     43    CULLMAN    AL
+## 6       1 11/15/1951 0:00:00     2000       CST     77 LAUDERDALE    AL
+##    EVTYPE BGN_RANGE BGN_AZI BGN_LOCATI END_DATE END_TIME COUNTY_END
+## 1 TORNADO         0                                               0
+## 2 TORNADO         0                                               0
+## 3 TORNADO         0                                               0
+## 4 TORNADO         0                                               0
+## 5 TORNADO         0                                               0
+## 6 TORNADO         0                                               0
+##   COUNTYENDN END_RANGE END_AZI END_LOCATI LENGTH WIDTH F MAG FATALITIES
+## 1         NA         0                      14.0   100 3   0          0
+## 2         NA         0                       2.0   150 2   0          0
+## 3         NA         0                       0.1   123 2   0          0
+## 4         NA         0                       0.0   100 2   0          0
+## 5         NA         0                       0.0   150 2   0          0
+## 6         NA         0                       1.5   177 2   0          0
+##   INJURIES PROPDMG PROPDMGEXP CROPDMG CROPDMGEXP WFO STATEOFFIC ZONENAMES
+## 1       15    25.0          K       0                                    
+## 2        0     2.5          K       0                                    
+## 3        2    25.0          K       0                                    
+## 4        2     2.5          K       0                                    
+## 5        2     2.5          K       0                                    
+## 6        6     2.5          K       0                                    
+##   LATITUDE LONGITUDE LATITUDE_E LONGITUDE_ REMARKS REFNUM
+## 1     3040      8812       3051       8806              1
+## 2     3042      8755          0          0              2
+## 3     3340      8742          0          0              3
+## 4     3458      8626          0          0              4
+## 5     3412      8642          0          0              5
+## 6     3450      8748          0          0              6</code></pre>
 </div>
-<div id="processeing-data" class="section level2">
-<h2>Processeing Data</h2>
-<p>Subset the data to health and economic impact analysis against weather. A more detailed description of the columns can be found <a href="https://d396qusza40orc.cloudfront.net/repdata%2Fpeer2_doc%2Fpd01016005curr.pdf">here</a> For the discussion of damages to person and property only the following columns are relevant:</p>
+<div id="processeing-data" class="section level3">
+<h3>Processeing Data</h3>
+<p>Only subset of this data is relevant to health and economic impact analysis against weather. A detailed description columns can be found in this <a href="https://d396qusza40orc.cloudfront.net/repdata%2Fpeer2_doc%2Fpd01016005curr.pdf">pdf file</a></p>
+<pre class="r"><code>relevantCol &lt;- c(&quot;EVTYPE&quot;, &quot;FATALITIES&quot;, &quot;INJURIES&quot;, &quot;PROPDMG&quot;, &quot;PROPDMGEXP&quot;, &quot;CROPDMG&quot;, &quot;CROPDMGEXP&quot;)
+stormRelevantData &lt;- storm[relevantCol]
+names(stormRelevantData)</code></pre>
+<pre><code>## [1] &quot;EVTYPE&quot;     &quot;FATALITIES&quot; &quot;INJURIES&quot;   &quot;PROPDMG&quot;    &quot;PROPDMGEXP&quot;
+## [6] &quot;CROPDMG&quot;    &quot;CROPDMGEXP&quot;</code></pre>
+</div>
+<div id="data-cleanup" class="section level3">
+<h3>Data Cleanup</h3>
+<p>Convert the property damage and crop damage data into comparable numerical values</p>
+<pre class="r"><code># storing the property exponent data
+stormRelevantData$PROPEXP[stormRelevantData$PROPDMGEXP == &quot;K&quot;] &lt;- 1000
+stormRelevantData$PROPEXP[stormRelevantData$PROPDMGEXP == &quot;M&quot;] &lt;- 1e+06
+stormRelevantData$PROPEXP[stormRelevantData$PROPDMGEXP == &quot;&quot;] &lt;- 1
+stormRelevantData$PROPEXP[stormRelevantData$PROPDMGEXP == &quot;B&quot;] &lt;- 1e+09
+stormRelevantData$PROPEXP[stormRelevantData$PROPDMGEXP == &quot;m&quot;] &lt;- 1e+06
+stormRelevantData$PROPEXP[stormRelevantData$PROPDMGEXP == &quot;0&quot;] &lt;- 1
+stormRelevantData$PROPEXP[stormRelevantData$PROPDMGEXP == &quot;5&quot;] &lt;- 1e+05
+stormRelevantData$PROPEXP[stormRelevantData$PROPDMGEXP == &quot;6&quot;] &lt;- 1e+06
+stormRelevantData$PROPEXP[stormRelevantData$PROPDMGEXP == &quot;4&quot;] &lt;- 10000
+stormRelevantData$PROPEXP[stormRelevantData$PROPDMGEXP == &quot;2&quot;] &lt;- 100
+stormRelevantData$PROPEXP[stormRelevantData$PROPDMGEXP == &quot;3&quot;] &lt;- 1000
+stormRelevantData$PROPEXP[stormRelevantData$PROPDMGEXP == &quot;h&quot;] &lt;- 100
+stormRelevantData$PROPEXP[stormRelevantData$PROPDMGEXP == &quot;7&quot;] &lt;- 1e+07
+stormRelevantData$PROPEXP[stormRelevantData$PROPDMGEXP == &quot;H&quot;] &lt;- 100
+stormRelevantData$PROPEXP[stormRelevantData$PROPDMGEXP == &quot;1&quot;] &lt;- 10
+stormRelevantData$PROPEXP[stormRelevantData$PROPDMGEXP == &quot;8&quot;] &lt;- 1e+08
+# give 0 to invalid exponent data, so they not count in
+stormRelevantData$PROPEXP[stormRelevantData$PROPDMGEXP == &quot;+&quot;] &lt;- 0
+stormRelevantData$PROPEXP[stormRelevantData$PROPDMGEXP == &quot;-&quot;] &lt;- 0
+stormRelevantData$PROPEXP[stormRelevantData$PROPDMGEXP == &quot;?&quot;] &lt;- 0
+# compute the property damage value
+stormRelevantData$PROPDMGVAL &lt;- stormRelevantData$PROPDMG * stormRelevantData$PROPEXP
+
+# exploring the crop exponent data
+unique(stormRelevantData$CROPDMGEXP)</code></pre>
+<pre><code>## [1]   M K m B ? 0 k 2
+## Levels:  ? 0 2 B k K m M</code></pre>
+<pre class="r"><code># Sorting the property exponent data
+stormRelevantData$CROPEXP[stormRelevantData$CROPDMGEXP == &quot;M&quot;] &lt;- 1e+06
+stormRelevantData$CROPEXP[stormRelevantData$CROPDMGEXP == &quot;K&quot;] &lt;- 1000
+stormRelevantData$CROPEXP[stormRelevantData$CROPDMGEXP == &quot;m&quot;] &lt;- 1e+06
+stormRelevantData$CROPEXP[stormRelevantData$CROPDMGEXP == &quot;B&quot;] &lt;- 1e+09
+stormRelevantData$CROPEXP[stormRelevantData$CROPDMGEXP == &quot;0&quot;] &lt;- 1
+stormRelevantData$CROPEXP[stormRelevantData$CROPDMGEXP == &quot;k&quot;] &lt;- 1000
+stormRelevantData$CROPEXP[stormRelevantData$CROPDMGEXP == &quot;2&quot;] &lt;- 100
+stormRelevantData$CROPEXP[stormRelevantData$CROPDMGEXP == &quot;&quot;] &lt;- 1
+# give 0 to invalid exponent data, so they not count in
+stormRelevantData$CROPEXP[stormRelevantData$CROPDMGEXP == &quot;?&quot;] &lt;- 0
+# compute the crop damage value
+stormRelevantData$CROPDMGVAL &lt;- stormRelevantData$CROPDMG * stormRelevantData$CROPEXP
+
+head(stormRelevantData)</code></pre>
+<pre><code>##    EVTYPE FATALITIES INJURIES PROPDMG PROPDMGEXP CROPDMG CROPDMGEXP
+## 1 TORNADO          0       15    25.0          K       0           
+## 2 TORNADO          0        0     2.5          K       0           
+## 3 TORNADO          0        2    25.0          K       0           
+## 4 TORNADO          0        2     2.5          K       0           
+## 5 TORNADO          0        2     2.5          K       0           
+## 6 TORNADO          0        6     2.5          K       0           
+##   PROPEXP PROPDMGVAL CROPEXP CROPDMGVAL
+## 1    1000      25000       1          0
+## 2    1000       2500       1          0
+## 3    1000      25000       1          0
+## 4    1000       2500       1          0
+## 5    1000       2500       1          0
+## 6    1000       2500       1          0</code></pre>
 </div>
 </div>
-<div id="event" class="section level1">
-<h1>event</h1>
-<p>```</p>
-</div>
-<div id="results" class="section level1">
-<h1>Results</h1>
 </div>
 
 
