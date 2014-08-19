@@ -26,6 +26,8 @@ we obtain the storm data in bzip archive format and extract it.
 #### Anlysis Machine info and R packages 
 
 ```{r settings,include=F,cache=F}
+#install.packages("ggplot2")
+#install.packages("data.table")
 library(knitr)
 options(digits = 7)
 opts_chunk$set(fig.width=10)
@@ -44,14 +46,14 @@ Raw data is aviable from the Coursera "Reproducible Research" course
 [file repository](https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2),
 we obtain the storm data in bzip archive format and extract it.
 
-```{r download.data,cache=T,eval=F}
+```{r download.data,cache=F,eval=F}
 download.file("https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2", destfile="repdata-data-StormData.csv.bz2",method = "curl")
 
 bunzip2("repdata-data-StormData.csv.bz2", overwrite=T, remove=F)
 ```
 Read in the extracted file, which is in CSV format
 
-```{r read.data,cache=T}
+```{r read.data,cache=F}
 storm = read.csv("repdata-data-StormData.csv")
 
 ```
@@ -59,7 +61,7 @@ storm = read.csv("repdata-data-StormData.csv")
 ### Processeing Data
 Subset the data to health and economic impact analysis against weather.
 A more detailed description of the columns can be found [here](https://d396qusza40orc.cloudfront.net/repdata%2Fpeer2_doc%2Fpd01016005curr.pdf)
-For the discussion of damages to person and property only the following columns are   relevant:   
+For the discussion of damages to person and property only the following columns are relevant:   
 
 ```{r}
 
@@ -68,9 +70,87 @@ mycol <- c("EVTYPE", "FATALITIES", "INJURIES", "PROPDMG", "PROPDMGEXP", "CROPDMG
 stormRelenantData <- storm[mycol]
 
 names(stormRelenantData)
+unique(stormRelenantData$PROPDMGEXP)
+# Sorting the property exponent data
+stormRelenantData$PROPEXP[stormRelenantData$PROPDMGEXP == "K"] <- 1000
+stormRelenantData$PROPEXP[stormRelenantData$PROPDMGEXP == "M"] <- 1e+06
+stormRelenantData$PROPEXP[stormRelenantData$PROPDMGEXP == ""] <- 1
+stormRelenantData$PROPEXP[stormRelenantData$PROPDMGEXP == "B"] <- 1e+09
+stormRelenantData$PROPEXP[stormRelenantData$PROPDMGEXP == "m"] <- 1e+06
+stormRelenantData$PROPEXP[stormRelenantData$PROPDMGEXP == "0"] <- 1
+stormRelenantData$PROPEXP[stormRelenantData$PROPDMGEXP == "5"] <- 1e+05
+stormRelenantData$PROPEXP[stormRelenantData$PROPDMGEXP == "6"] <- 1e+06
+stormRelenantData$PROPEXP[stormRelenantData$PROPDMGEXP == "4"] <- 10000
+stormRelenantData$PROPEXP[stormRelenantData$PROPDMGEXP == "2"] <- 100
+stormRelenantData$PROPEXP[stormRelenantData$PROPDMGEXP == "3"] <- 1000
+stormRelenantData$PROPEXP[stormRelenantData$PROPDMGEXP == "h"] <- 100
+stormRelenantData$PROPEXP[stormRelenantData$PROPDMGEXP == "7"] <- 1e+07
+stormRelenantData$PROPEXP[stormRelenantData$PROPDMGEXP == "H"] <- 100
+stormRelenantData$PROPEXP[stormRelenantData$PROPDMGEXP == "1"] <- 10
+stormRelenantData$PROPEXP[stormRelenantData$PROPDMGEXP == "8"] <- 1e+08
+# give 0 to invalid exponent data, so they not count in
+stormRelenantData$PROPEXP[stormRelenantData$PROPDMGEXP == "+"] <- 0
+stormRelenantData$PROPEXP[stormRelenantData$PROPDMGEXP == "-"] <- 0
+stormRelenantData$PROPEXP[stormRelenantData$PROPDMGEXP == "?"] <- 0
+# compute the property damage value
+stormRelenantData$PROPDMGVAL <- stormRelenantData$PROPDMG * stormRelenantData$PROPEXP
 
-```
+head(stormRelenantData)
+###Preparing the crop damage data
 
+# exploring the crop exponent data
+unique(stormRelenantData$CROPDMGEXP)
+# Sorting the property exponent data
+stormRelenantData$CROPEXP[stormRelenantData$CROPDMGEXP == "M"] <- 1e+06
+stormRelenantData$CROPEXP[stormRelenantData$CROPDMGEXP == "K"] <- 1000
+stormRelenantData$CROPEXP[stormRelenantData$CROPDMGEXP == "m"] <- 1e+06
+stormRelenantData$CROPEXP[stormRelenantData$CROPDMGEXP == "B"] <- 1e+09
+stormRelenantData$CROPEXP[stormRelenantData$CROPDMGEXP == "0"] <- 1
+stormRelenantData$CROPEXP[stormRelenantData$CROPDMGEXP == "k"] <- 1000
+stormRelenantData$CROPEXP[stormRelenantData$CROPDMGEXP == "2"] <- 100
+stormRelenantData$CROPEXP[stormRelenantData$CROPDMGEXP == ""] <- 1
+# give 0 to invalid exponent data, so they not count in
+stormRelenantData$CROPEXP[stormRelenantData$CROPDMGEXP == "?"] <- 0
+# compute the crop damage value
+stormRelenantData$CROPDMGVAL <- stormRelenantData$CROPDMG * stormRelenantData$CROPEXP
+head(stormRelenantData)
+
+
+# aggregate the data by event
+fatal <- aggregate(FATALITIES ~ EVTYPE, data = stormRelenantData, FUN = sum)
+injury <- aggregate(INJURIES ~ EVTYPE, data = stormRelenantData, FUN = sum)
+propdmg <- aggregate(PROPDMGVAL ~ EVTYPE, data = stormRelenantData, FUN = sum)
+cropdmg <- aggregate(CROPDMGVAL ~ EVTYPE, data = stormRelenantData, FUN = sum)
 
 
 #Results
+Aross the United States, Which types of events are nost harmful with respect to population health?
+
+# get top10 event with highest fatalities
+fatal10 <- fatal[order(-fatal$FATALITIES), ][1:10, ]
+# get top10 event with highest injuries
+injury10 <- injury[order(-injury$INJURIES), ][1:10, ]
+par(mfrow = c(1, 2), mar = c(12, 4, 3, 2), mgp = c(3, 1, 0), cex = 0.8)
+barplot(fatal10$FATALITIES, las = 3, names.arg = fatal10$EVTYPE, main = "Weather Events With The Top 10 Highest Fatalities", 
+    ylab = "number of fatalities", col = "red")
+barplot(injury10$INJURIES, las = 3, names.arg = injury10$EVTYPE, main = "Weather Events With the Top 10 Highest Injuries", 
+    ylab = "number of injuries", col = "red")
+
+The most harmful weather event to population health is Tornado.It is cause for both the highest fatalities and the highest injuries across United States.
+
+Across the United States, which types of events have the greatest economic consequences?
+
+# get top 10 events with highest property damage
+propdmg10 <- propdmg[order(-propdmg$PROPDMGVAL), ][1:10, ]
+# get top 10 events with highest crop damage
+cropdmg10 <- cropdmg[order(-cropdmg$CROPDMGVAL), ][1:10, ]
+par(mfrow = c(1, 2), mar = c(12, 4, 3, 2), mgp = c(3, 1, 0), cex = 0.8)
+barplot(propdmg10$PROPDMGVAL/(10^9), las = 3, names.arg = propdmg10$EVTYPE, 
+    main = "Top 10 Events with Greatest Property Damages", ylab = "Cost of damages ($ billions)", 
+    col = "red")
+barplot(cropdmg10$CROPDMGVAL/(10^9), las = 3, names.arg = cropdmg10$EVTYPE, 
+    main = "Top 10 Events With Greatest Crop Damages", ylab = "Cost of damages ($ billions)", 
+    col = "red")
+The weather events have tje greatest economic consequences are: flood, drought, Tornado and Typhoon.
+
+Across the United States, flood, tornado and typhoon have caused the greatest damage to properties. Drought and flood come as the causes for the greatest damage to crops.
