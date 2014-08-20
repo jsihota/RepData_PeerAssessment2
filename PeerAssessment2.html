@@ -156,9 +156,7 @@ cropdmg &lt;- aggregate(CROPDMGVAL ~ EVTYPE, data = stormRelevantData, FUN = sum
 <h1>Results</h1>
 <div id="aross-the-united-states-which-types-of-events-are-most-harmful-with-respect-to-population-health" class="section level3">
 <h3>Aross the United States, Which types of events are most harmful with respect to population health?</h3>
-<pre class="r"><code># get top10 event with highest fatalities
-fatal &lt;- fatal[order(-fatal$FATALITIES), ][1:20, ]
-# get top10 event with highest injuries
+<pre class="r"><code>fatal &lt;- fatal[order(-fatal$FATALITIES), ][1:20, ]
 injury &lt;- injury[order(-injury$INJURIES), ][1:20, ]
 par(mfrow = c(1, 2), mar = c(12, 4, 3, 2), mgp = c(3, 1, 0), cex = 0.8)
 barplot(fatal$FATALITIES, las = 3, names.arg = fatal$EVTYPE, main = &quot;Weather Events With The Top 20 Highest Fatalities&quot;, 
@@ -169,9 +167,7 @@ barplot(injury$INJURIES, las = 3, names.arg = injury$EVTYPE, main = &quot;Weathe
 </div>
 <div id="across-the-united-states-which-types-of-events-have-the-greatest-economic-consequences" class="section level3">
 <h3>Across the United States, which types of events have the greatest economic consequences?</h3>
-<pre class="r"><code># get top 10 events with highest property damage
-propdmg &lt;- propdmg[order(-propdmg$PROPDMGVAL), ][1:20, ]
-# get top 10 events with highest crop damage
+<pre class="r"><code>propdmg &lt;- propdmg[order(-propdmg$PROPDMGVAL), ][1:20, ]
 cropdmg &lt;- cropdmg[order(-cropdmg$CROPDMGVAL), ][1:20, ]
 par(mfrow = c(1, 2), mar = c(12, 4, 3, 2), mgp = c(3, 1, 0), cex = 0.8)
 barplot(propdmg$PROPDMGVAL/(10^9), las = 3, names.arg = propdmg$EVTYPE, 

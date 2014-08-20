@@ -110,9 +110,7 @@ cropdmg <- aggregate(CROPDMGVAL ~ EVTYPE, data = stormRelevantData, FUN = sum)
 ### Aross the United States, Which types of events are most harmful with respect to population health?
 
 ```{r first.graph,cache=F,eval=T}
-# get top10 event with highest fatalities
 fatal <- fatal[order(-fatal$FATALITIES), ][1:20, ]
-# get top10 event with highest injuries
 injury <- injury[order(-injury$INJURIES), ][1:20, ]
 par(mfrow = c(1, 2), mar = c(12, 4, 3, 2), mgp = c(3, 1, 0), cex = 0.8)
 barplot(fatal$FATALITIES, las = 3, names.arg = fatal$EVTYPE, main = "Weather Events With The Top 20 Highest Fatalities", 
@@ -125,9 +123,7 @@ It is cause for both the highest fatalities and the highest injuries across Unit
 
 ### Across the United States, which types of events have the greatest economic consequences?
 ```{r second.graph,cache=F,eval=T}
-# get top 10 events with highest property damage
 propdmg <- propdmg[order(-propdmg$PROPDMGVAL), ][1:20, ]
-# get top 10 events with highest crop damage
 cropdmg <- cropdmg[order(-cropdmg$CROPDMGVAL), ][1:20, ]
 par(mfrow = c(1, 2), mar = c(12, 4, 3, 2), mgp = c(3, 1, 0), cex = 0.8)
 barplot(propdmg$PROPDMGVAL/(10^9), las = 3, names.arg = propdmg$EVTYPE, 
