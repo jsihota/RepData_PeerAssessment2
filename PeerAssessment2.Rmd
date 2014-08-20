@@ -12,7 +12,7 @@ storm database two answer following questions:
 
   This NOAA database tracks characteristics of major storms and weather events in the United States, including when and where they occur, as well as estimates of any fatalities, injuries, and property damage.The raw data consisted of 902297 records, each with values for up to 37 variables, from years 1950 to November 2011.
   
-  Data shows, tornadoes are the most hazardous to human health with 5633 reported fatalities and 91346 reported injuries, and floods have been responsible for the most economic damage ($150+ billion).
+  Data shows, tornadoes are the most hazardous to human health with reported fatalities and reported injuries. Across the United States, flood, have caused the greatest damage to properties and Drought causes for the greatest damage to crops.
 
 ## Data Processing
 ### Setting up R
@@ -49,7 +49,6 @@ Read in the extracted file, which is in CSV format
 ```{r read.data,cache=F,eval=T}
 # load data into R
 storm <- read.csv("storm.csv")
-head(storm)
 ```
 
 ### Processeing Data
@@ -105,34 +104,37 @@ fatal <- aggregate(FATALITIES ~ EVTYPE, data = stormRelevantData, FUN = sum)
 injury <- aggregate(INJURIES ~ EVTYPE, data = stormRelevantData, FUN = sum)
 propdmg <- aggregate(PROPDMGVAL ~ EVTYPE, data = stormRelevantData, FUN = sum)
 cropdmg <- aggregate(CROPDMGVAL ~ EVTYPE, data = stormRelevantData, FUN = sum)
+
 ```
 # Results
 ### Aross the United States, Which types of events are most harmful with respect to population health?
 
 ```{r first.graph,cache=F,eval=T}
 # get top10 event with highest fatalities
-fatal10 <- fatal[order(-fatal$FATALITIES), ][1:10, ]
+fatal <- fatal[order(-fatal$FATALITIES), ][1:20, ]
 # get top10 event with highest injuries
-injury10 <- injury[order(-injury$INJURIES), ][1:10, ]
+injury <- injury[order(-injury$INJURIES), ][1:20, ]
 par(mfrow = c(1, 2), mar = c(12, 4, 3, 2), mgp = c(3, 1, 0), cex = 0.8)
-barplot(fatal10$FATALITIES, las = 3, names.arg = fatal10$EVTYPE, main = "Weather Events With The Top 10 Highest Fatalities", 
-    ylab = "number of fatalities", col = "red")
-barplot(injury10$INJURIES, las = 3, names.arg = injury10$EVTYPE, main = "Weather Events With the Top 10 Highest Injuries", 
-    ylab = "number of injuries", col = "red")
+barplot(fatal$FATALITIES, las = 3, names.arg = fatal$EVTYPE, main = "Weather Events With The Top 20 Highest Fatalities", 
+    ylab = "number of fatalities", col = "blue")
+barplot(injury$INJURIES, las = 3, names.arg = injury$EVTYPE, main = "Weather Events With the Top 20 Highest Injuries", 
+    ylab = "number of injuries", col = "green")
 ```
-The most harmful weather event to population health is Tornado.It is cause for both the highest fatalities and the highest injuries across United States.
+The most harmful weather event to population health is Tornado.
+It is cause for both the highest fatalities and the highest injuries across United States.
 
 ### Across the United States, which types of events have the greatest economic consequences?
 ```{r second.graph,cache=F,eval=T}
 # get top 10 events with highest property damage
-propdmg10 <- propdmg[order(-propdmg$PROPDMGVAL), ][1:10, ]
+propdmg <- propdmg[order(-propdmg$PROPDMGVAL), ][1:20, ]
 # get top 10 events with highest crop damage
-cropdmg10 <- cropdmg[order(-cropdmg$CROPDMGVAL), ][1:10, ]
+cropdmg <- cropdmg[order(-cropdmg$CROPDMGVAL), ][1:20, ]
 par(mfrow = c(1, 2), mar = c(12, 4, 3, 2), mgp = c(3, 1, 0), cex = 0.8)
-barplot(propdmg10$PROPDMGVAL/(10^9), las = 3, names.arg = propdmg10$EVTYPE, 
-    main = "Top 10 Events with Greatest Property Damages", ylab = "Cost of damages ($ billions)", 
-    col = "red")
-barplot(cropdmg10$CROPDMGVAL/(10^9), las = 3, names.arg = cropdmg10$EVTYPE, 
-    main = "Top 10 Events With Greatest Crop Damages", ylab = "Cost of damages ($ billions)", 
-    col = "red")
+barplot(propdmg$PROPDMGVAL/(10^9), las = 3, names.arg = propdmg$EVTYPE, 
+    main = "Top 20 Events with Greatest Property Damages", ylab = "Cost of damages ($ billions)", 
+    col = "blue")
+barplot(cropdmg$CROPDMGVAL/(10^9), las = 3, names.arg = cropdmg$EVTYPE, 
+    main = "Top 20 Events With Greatest Crop Damages", ylab = "Cost of damages ($ billions)", 
+    col = "green")
 ```
+Across the United States, flood, have caused the greatest damage to properties and Drought causes for the greatest damage to crops.
